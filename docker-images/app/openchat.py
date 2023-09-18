@@ -13,7 +13,7 @@ class HostAgents(Enum):
     API_REQUEST_CODE_FAIL = 201
     API_REQUEST_CODE_TIMEOUT = 408
 
-    API_AI360_HOAT = "https://api.360.cn/v1/chat/completions"
+    API_AI360_HOST = "https://api.360.cn/v1/chat/completions"
     API_AI360_KEY = ""
 
 class OpenChatRequest():
@@ -89,7 +89,7 @@ class OpenChatProxy(object):
     
     @staticmethod
     def ai360Chat(content):
-        url = HostAgents.API_AI360_HOAT.value
+        url = HostAgents.API_AI360_HOST.value
         payload = json.dumps({
             "model": "360GPT_S2_V9",
             "messages": [
