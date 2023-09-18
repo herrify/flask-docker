@@ -7,6 +7,7 @@ import socket
 socket.setdefaulttimeout(8)
 
 app = Flask(__name__)
+app.config["JSON_AS_ASCII"] = False
 Cors = CORS(app)
 CORS(app, resources={r'/*': {'origins': '*'}},CORS_SUPPORTS_CREDENTIALS = True)
 app.config['CORS_HEADERS'] = 'Content-Type'
