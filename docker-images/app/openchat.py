@@ -13,6 +13,9 @@ class HostAgents(Enum):
     API_REQUEST_CODE_FAIL = 201
     API_REQUEST_CODE_TIMEOUT = 408
 
+    API_AI360_HOAT = "https://api.360.cn/v1/chat/completions"
+    API_AI360_KEY = ""
+
 class OpenChatRequest():
     @staticmethod
     def chatHTTPSRequest(content, apiHost, apiKey):
@@ -80,6 +83,38 @@ class OpenChatProxy(object):
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
             response = response.text
+        except Exception as e:
+            response = HostAgents.API_REQUEST_CODE_FAIL.value
+        return response
+    
+    @staticmethod
+    def ai360Chat(content):
+        url = HostAgents.API_AI360_HOAT.value
+        payload = json.dumps({
+            "model": "360GPT_S2_V9",
+            "messages": [
+                {
+                "role": "user",
+                "content": content
+                }
+            ],
+            "stream": False,
+            "temperature": 0.9,
+            "max_tokens": 2048,
+            "top_p": 0.7,
+            "top_k": 0,
+            "repetition_penalty": 1.1,
+            "num_beams": 1,
+            "user": "andy"
+        })
+        headers = {
+            'Authorization': f"Bearer {HostAgents.API_AI360_KEY.value}",
+            'Content-Type': 'application/json'
+        }
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload)
+            contentDict = json.loads(response)
+            return contentDict['choices'][0]['message']['content']
         except Exception as e:
             response = HostAgents.API_REQUEST_CODE_FAIL.value
         return response

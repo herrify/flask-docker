@@ -23,7 +23,9 @@ def submitData():
         requestContent = requestJson["content"]
         requestType = requestJson["type"]
         if requestType == "chatGPT":
-            data = chatOpenAI(requestContent)
+            data = chatAnyWhere(requestContent)
+        elif requestType == "ai360":
+            data = ai360Chat(requestContent)
         elif requestType == "baiduIce":
             requestRes = baiduIceChat(requestContent)
             contentDict = json.loads(requestRes)
@@ -64,6 +66,9 @@ def chatOpenAI(content):
 
 def baiduIceChat(content):
     return OpenChatProxy.baiduIceChat(content)
+
+def ai360Chat(content):
+    return OpenChatProxy.ai360Chat(content)
 
 
 if __name__ == '__main__':
