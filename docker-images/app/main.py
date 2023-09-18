@@ -11,7 +11,7 @@ Cors = CORS(app)
 CORS(app, resources={r'/*': {'origins': '*'}},CORS_SUPPORTS_CREDENTIALS = True)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-@app.route("/gptChat", methods=["POST","GET"])
+@app.route("/unionChat", methods=["POST","GET"])
 def submitData():
     timeStart = time.time()
     try:
