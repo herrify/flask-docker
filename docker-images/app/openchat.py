@@ -113,7 +113,7 @@ class OpenChatProxy(object):
         }
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            contentDict = json.loads(response)
+            contentDict = json.loads(response.text)
             return contentDict['choices'][0]['message']['content']
         except Exception as e:
             response = HostAgents.API_REQUEST_CODE_FAIL.value
