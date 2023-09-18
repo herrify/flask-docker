@@ -1,6 +1,10 @@
 from flask import Flask, request,jsonify,json
 from flask_cors import CORS, cross_origin
-from openchat import OpenChatProxy
+from openchat import OpenChatProxy, HostAgents
+import time
+import json
+import socket
+socket.setdefaulttimeout(8)
 
 app = Flask(__name__)
 Cors = CORS(app)
@@ -9,25 +13,54 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/gptChat", methods=["POST","GET"])
 def submitData():
-    requestJson = request.get_json()
-    requestContent = requestJson['content']
-    if not requestContent:
-        requestContent = "hello ,how to say 'I am not happy' in Chinese?"
-    content = chatAnyWhere(requestContent)
-    return content
+    timeStart = time.time()
+    try:
+        code = HostAgents.API_REQUEST_CODE_SUCCESS.value
+        data = ""
+        msg = ""
+        useTime = 0
+        requestJson = request.get_json()
+        requestContent = requestJson["content"]
+        requestType = requestJson["type"]
+        if requestType == "chatGPT":
+            data = chatOpenAI(requestContent)
+        elif requestType == "baiduIce":
+            requestRes = baiduIceChat(requestContent)
+            contentDict = json.loads(requestRes)
+            data = contentDict["result"]
+        else:
+            data = chatAnyWhere(requestContent)
+        if data == HostAgents.API_REQUEST_CODE_FAIL.value:
+            code = HostAgents.API_REQUEST_CODE_FAIL.value
+            msg = "Api Request Failed"
+    except socket.timeout:
+        code = HostAgents.API_REQUEST_CODE_TIMEOUT.value
+        msg = "Api Request Timeout"
+    except Exception as e:
+        code = HostAgents.API_REQUEST_CODE_FAIL.value
+        msg = "Api Request Failed"
+    timeEnd = time.time()
+    useTime = timeEnd - timeStart
+    try:
+        return jsonify({"code": code, "data": {"reply": data}, "msg": msg, "useTime": useTime})
+    except Exception as e:
+        return jsonify({"code": 201, "data": "", "msg": "", "useTime": useTime})
 
 @app.route("/baiduIce", methods=["POST","GET"])
 def baiduIce():
     requestJson = request.get_json()
     requestContent = requestJson['content']
     if not requestContent:
-        requestContent = "hello ,how to say 'I am not happy' in Chinese?"
+        requestContent = "hello ,self introduce in Chinese please"
     content = baiduIceChat(requestContent)
     return content.text
 
 
 def chatAnyWhere(content):
     return OpenChatProxy.chatAnyWhere(content)
+
+def chatOpenAI(content):
+    return OpenChatProxy.chatOpenAiProxy(content)
 
 def baiduIceChat(content):
     return OpenChatProxy.baiduIceChat(content)
